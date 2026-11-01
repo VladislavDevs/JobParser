@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:vacancydb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+hh:
+  api:
+    base-url: https://api.hh.ru
+    user-agent: "VacancyParser/1.0"
