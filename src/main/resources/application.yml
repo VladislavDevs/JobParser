@@ -8,7 +8,7 @@ spring:
     hibernate:
       ddl-auto: update
 
-hh:
+trudvsem:
   api:
-    base-url: https://api.hh.ru
-    user-agent: "VacancyParser/1.0"
+    base-url: http://opendata.trudvsem.ru/api
+    page-size: 50   # API «Работа России» позволяет до 100 записей на страницу

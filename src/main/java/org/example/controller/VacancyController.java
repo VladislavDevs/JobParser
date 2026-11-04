@@ -3,7 +3,6 @@ package org.example.controller;
 import org.example.entity.Vacancy;
 import org.example.repository.VacancyRepository;
 import org.example.service.VacancyParserService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,18 +16,32 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
-@RequiredArgsConstructor
 public class VacancyController {
 
     private final VacancyParserService parserService;
     private final VacancyRepository repository;
 
+    public VacancyController(VacancyParserService parserService, VacancyRepository repository) {
+        this.parserService = parserService;
+        this.repository = repository;
+    }
+
+    // Ручное добавление ID в очередь (если известны конкретные ID)
     @PostMapping("/parse")
     public ResponseEntity<String> parse(@RequestBody List<String> vacancyIds) {
         vacancyIds.forEach(parserService::addToQueue);
         return ResponseEntity.ok("Добавлено в очередь: " + vacancyIds.size());
     }
 
+    // Автоматический сбор вакансий с портала «Работа России»
+    @PostMapping("/fetch")
+    public ResponseEntity<String> fetch(@RequestParam(defaultValue = "0") int page,
+                                        @RequestParam(defaultValue = "50") int size) {
+        parserService.fetchAndQueueVacancies(page, size);
+        return ResponseEntity.ok("Запущен сбор вакансий: страница " + page + ", размер " + size);
+    }
+
+    // Получение результатов с фильтрацией, сортировкой и пагинацией через parallelStream
     @GetMapping("/answer")
     public ResponseEntity<List<Vacancy>> getAnswer(
             @RequestParam(required = false) String city,

@@ -9,17 +9,14 @@ import org.springframework.web.reactive.function.client.WebClient;
 @Configuration
 public class WebClientConfig {
 
-    @Value("${hh.api.base-url}")
+    @Value("${trudvsem.api.base-url}")
     private String baseUrl;
 
-    @Value("${hh.api.user-agent}")
-    private String userAgent;
-
     @Bean
-    public WebClient hhWebClient() {
+    public WebClient trudvsemWebClient() {
         return WebClient.builder()
                 .baseUrl(baseUrl)
-                .defaultHeader(HttpHeaders.USER_AGENT, userAgent)
+                .defaultHeader(HttpHeaders.ACCEPT, "application/json")
                 .build();
     }
 }
