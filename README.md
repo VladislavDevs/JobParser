@@ -20,4 +20,7 @@
 
 Тело (JSON):
 ```json
-["46a78055-70b5-11f1-ab59-9f54fcecbcef"]
+{
+  "companyCode": "1027700404797",
+  "vacancyId": "46a78055-70b5-11f1-ab59-9f54fcecbcef"
+} 

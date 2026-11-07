@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.Map;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,9 +29,17 @@ public class VacancyController {
 
     // Ручное добавление ID в очередь (если известны конкретные ID)
     @PostMapping("/parse")
-    public ResponseEntity<String> parse(@RequestBody List<String> vacancyIds) {
-        vacancyIds.forEach(parserService::addToQueue);
-        return ResponseEntity.ok("Добавлено в очередь: " + vacancyIds.size());
+    public ResponseEntity<String> parse(@RequestBody Map<String, String> item) {
+        String companyCode = item.get("companyCode");
+        String vacancyId = item.get("vacancyId");
+
+        if (companyCode == null || vacancyId == null) {
+            return ResponseEntity.badRequest()
+                    .body("Нужны поля: companyCode и vacancyId");
+        }
+
+        parserService.parseOneVacancy(companyCode, vacancyId);
+        return ResponseEntity.ok("Отправлено: " + vacancyId);
     }
 
     // Автоматический сбор вакансий с портала «Работа России»
