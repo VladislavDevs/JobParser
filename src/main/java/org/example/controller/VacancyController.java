@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.Map;
 
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -77,5 +80,27 @@ public class VacancyController {
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(result);
+    }
+
+    @Controller
+    public class VacancyPageController {
+
+        private final VacancyRepository repository;
+
+        public VacancyPageController(VacancyRepository repository) {
+            this.repository = repository;
+        }
+
+        @GetMapping("/vacancies")
+        public String list(@org.springframework.web.bind.annotation.RequestParam(required = false) String city,
+                           Model model) {
+            var all = repository.findAll();
+            if (city != null && !city.isEmpty()) {
+                all = all.stream().filter(v -> v.getCity().contains(city)).toList();
+            }
+            model.addAttribute("vacancies", all);
+            model.addAttribute("city", city);
+            return "vacancies";
+        }
     }
 }

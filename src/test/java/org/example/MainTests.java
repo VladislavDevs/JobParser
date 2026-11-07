@@ -34,7 +34,7 @@ class MainTests {
         repository.deleteAll();
     }
 
-    // === 1. Контекст Spring Boot поднимается ===
+    //1. Контекст Spring Boot поднимается
     @Test
     void contextLoads() {
         assertNotNull(controller);
@@ -42,7 +42,7 @@ class MainTests {
         assertNotNull(parserService);
     }
 
-    // === 2. Репозиторий сохраняет и читает вакансию ===
+    //2. Репозиторий сохраняет и читает вакансию
     @Test
     void repositorySavesAndReadsVacancy() {
         Vacancy v = new Vacancy();
@@ -60,7 +60,7 @@ class MainTests {
         assertEquals("Java-разработчик", saved.getTitle());
     }
 
-    // === 3. GET /api/answer возвращает 200 и пустой список ===
+    //3. GET /api/answer возвращает 200 и пустой список
     @Test
     void answerReturnsOkOnEmptyDb() {
         ResponseEntity<List<Vacancy>> response = controller.getAnswer(null, 0, 10, "title");
@@ -69,7 +69,7 @@ class MainTests {
         assertTrue(response.getBody().isEmpty());
     }
 
-    // === 4. GET /api/answer фильтрует по городу через parallelStream ===
+    //4. GET /api/answer фильтрует по городу через parallelStream
     @Test
     void answerFiltersByCity() {
         repository.save(makeVacancy("v1", "Java-разработчик", "Москва"));
@@ -86,7 +86,7 @@ class MainTests {
                 assertTrue(v.getCity().contains("Москва")));
     }
 
-    // === 5. GET /api/answer сортирует по title ===
+    //5. GET /api/answer сортирует по title
     @Test
     void answerSortsByTitle() {
         repository.save(makeVacancy("v1", "ZZZ последняя", "Москва"));
@@ -104,7 +104,7 @@ class MainTests {
         assertEquals("ZZZ последняя", list.get(2).getTitle());
     }
 
-    // === 6. GET /api/answer поддерживает пагинацию ===
+    //6. GET /api/answer поддерживает пагинацию
     @Test
     void answerSupportsPagination() {
         for (int i = 0; i < 25; i++) {
@@ -122,7 +122,7 @@ class MainTests {
         assertEquals(5, page2.getBody().size());
     }
 
-    // === 7. Простой поток Thread/Runnable ===
+    //7. Простой поток Thread/Runnable
     @Test
     void simpleThreadRuns() throws InterruptedException {
         parserService.parseInSimpleThread("test-thread-id");
@@ -130,7 +130,7 @@ class MainTests {
         assertTrue(true);
     }
 
-    // === 8. /api/fetch возвращает 200 ===
+    //8. /api/fetch возвращает 200
     @Test
     void fetchEndpointReturnsOk() {
         // ВАЖНО: тест делает реальный HTTP-запрос к opendata.trudvsem.ru
@@ -141,7 +141,6 @@ class MainTests {
         assertFalse(response.getBody().isEmpty());
     }
 
-    // === Вспомогательный метод для создания вакансии ===
     private Vacancy makeVacancy(String externalId, String title, String city) {
         Vacancy v = new Vacancy();
         v.setExternalId(externalId);

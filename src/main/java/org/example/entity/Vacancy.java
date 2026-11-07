@@ -1,9 +1,6 @@
 package org.example.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,7 +18,11 @@ public class Vacancy {
     private String title;
     private String company;
     private String salary;
+
+    @Column(columnDefinition = "TEXT")
     private String requirements;
+
+
     private String city;
     private String datePosted;
 

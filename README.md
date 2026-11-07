@@ -36,3 +36,6 @@ Invoke-RestMethod -Uri "http://localhost:8080/api/fetch?page=0&size=50" -Method 
 ```bash
 Invoke-RestMethod -Uri "http://localhost:8080/api/parse" -Method Post -ContentType "application/json" -Body '{"companyCode":"1027700404797","vacancyId":"46a78055-70b5-11f1-ab59-9f54fcecbcef"}'
 ```
+
+## Просмотр списка загруженных вакансий:
+`http://localhost:8080/vacancies`

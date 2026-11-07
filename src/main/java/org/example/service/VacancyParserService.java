@@ -2,6 +2,7 @@ package org.example.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
 import org.example.entity.Vacancy;
 import org.example.repository.VacancyRepository;
 import org.slf4j.Logger;
@@ -10,9 +11,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
@@ -113,6 +114,29 @@ public class VacancyParserService {
         }
     }
 
+    @PostConstruct
+    public void loadFromFile() {
+        Path path = Path.of("vacancies.txt");
+        if (!Files.exists(path)) {
+            log.info("[LOAD] Файл vacancies.txt не найден, начинаем с пустой базы");
+            return;
+        }
+        try (BufferedReader br = new BufferedReader(new FileReader(path.toFile()))) {
+            String line;
+            int loaded = 0;
+            while ((line = br.readLine()) != null) {
+                Vacancy v = parseLine(line);
+                if (v != null && processedIds.putIfAbsent(v.getExternalId(), true) == null) {
+                    repository.save(v);
+                    loaded++;
+                }
+            }
+            log.info("[LOAD] Из файла загружено {} вакансий", loaded);
+        } catch (IOException e) {
+            log.error("[LOAD] Ошибка чтения файла", e);
+        }
+    }
+
     // Основной метод: загрузка с API Trudvsem
     public void fetchAndQueueVacancies(int page, int size) {
         log.info("[FETCH] СТАРТ page={}, size={}", page, size);
@@ -187,7 +211,7 @@ public class VacancyParserService {
                 }
 
                 vacancy.setCity(v.path("region").path("name").asText(""));
-                vacancy.setDatePosted(v.path("date-published").asText(""));
+                vacancy.setDatePosted(v.path("creation-date").asText(""));
                 vacancy.setRequirements(v.path("requirements").asText(""));
 
                 vacancyQueue.add(vacancy);
@@ -253,7 +277,7 @@ public class VacancyParserService {
             vacancy.setTitle(v.path("job-name").asText(""));
             vacancy.setCompany(v.path("company").path("name").asText(""));
             vacancy.setCity(v.path("region").path("name").asText(""));
-            vacancy.setDatePosted(v.path("date-published").asText(""));
+            vacancy.setDatePosted(v.path("creation-date").asText(""));
             vacancy.setRequirements(v.path("requirements").asText(""));
 
             // Зарплата
@@ -287,5 +311,30 @@ public class VacancyParserService {
         } catch (Exception e) {
             log.error("[PARSE ONE] Ошибка при запросе", e);
         }
+    }
+
+    private Vacancy parseLine(String line) {
+        try {
+            Vacancy v = new Vacancy();
+            v.setExternalId(extract(line, "externalId"));
+            v.setTitle(extract(line, "title"));
+            v.setCompany(extract(line, "company"));
+            v.setSalary(extract(line, "salary"));
+            v.setCity(extract(line, "city"));
+            v.setDatePosted(extract(line, "creation-date"));
+            v.setRequirements(extract(line, "requirements"));
+            return v.getExternalId() != null ? v : null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private String extract(String line, String field) {
+        String key = field + "='";
+        int start = line.indexOf(key);
+        if (start == -1) return null;
+        start += key.length();
+        int end = line.indexOf("'", start);
+        return end > start ? line.substring(start, end) : null;
     }
 }
