@@ -122,16 +122,15 @@ class MainTests {
         assertEquals(5, page2.getBody().size());
     }
 
-    // === 7. Простой поток Thread/Runnable запускается без ошибок ===
+    // === 7. Простой поток Thread/Runnable ===
     @Test
     void simpleThreadRuns() throws InterruptedException {
         parserService.parseInSimpleThread("test-thread-id");
-        Thread.sleep(200); // даём потоку завершиться
-        // если поток упал — тест не увидит, но проверим что метод не бросает
+        Thread.sleep(200);
         assertTrue(true);
     }
 
-    // === 8. /api/fetch возвращает 200 (без проверки реального API) ===
+    // === 8. /api/fetch возвращает 200 ===
     @Test
     void fetchEndpointReturnsOk() {
         // ВАЖНО: тест делает реальный HTTP-запрос к opendata.trudvsem.ru
